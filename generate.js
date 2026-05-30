@@ -736,7 +736,7 @@ async function buildSenate() {
 }
 
 async function buildGov() {
-    console.log("  fetching governor...");
+    console.log("  fetching governors...");
     const outcomes = await runRacePipeline(Link_gov, {
         excludeRe:            GOV_EXCLUDE_RE,
         primaryWinners:       primaryWinnersByState_gov,
