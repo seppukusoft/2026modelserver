@@ -1,6 +1,6 @@
 services:
   app:
-    image: ghcr.io/seppukusoft/2026modelserver:sha256-84edc9078e827e7f52100b261db12a0d0387562afd6564b5158f3ef235a9a5e4.sig
+    image: ghcr.io/seppukusoft/2026modelserver:latest
     container_name: election-model
     restart: unless-stopped
 
