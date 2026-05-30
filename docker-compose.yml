@@ -1,6 +1,8 @@
 services:
   app:
     image: ghcr.io/seppukusoft/2026modelserver:latest
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
     container_name: election-model
     restart: unless-stopped
 
@@ -8,3 +10,11 @@ services:
       NODE_ENV: production
     env_file:
       - .env
+
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 60 --label-enable
+    restart: always
+
