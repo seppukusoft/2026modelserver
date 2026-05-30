@@ -1,0 +1,11 @@
+services:
+  app:
+    build:
+      context: .
+    container_name: election-model
+    restart: unless-stopped
+
+    environment:
+      NODE_ENV: production
+    env_file:
+      - .env
