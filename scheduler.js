@@ -8,7 +8,14 @@ const script = resolve(__dirname, "generate.js");
 function run() {
     console.log(`[${new Date().toISOString()}] Running generate.js...`);
     const child = spawn("node", [script], { stdio: "inherit" });
-    child.on("exit", code => console.log(`[${new Date().toISOString()}] Exited with code ${code}`));
+    child.on("exit", code => {
+        if (code !== 0) {
+            console.log(`[${new Date().toISOString()}] Exited with code ${code}`);
+        }
+        else {
+            console.log(`[${new Date().toISOString()}] Completed`);
+        }
+    });
 }
 
 run(); 
