@@ -435,7 +435,6 @@ async function runRacePipeline(url, config) {
         new Date(r.created_at) >= cutoffDate &&
         (!extraRowFilter || extraRowFilter(r))
     );
-
     const polls      = groupByPollId(rows, ratingsMap);
     const thresholded = applyCandidateThreshold(polls);
     const filtered   = filterPolls(thresholded);
@@ -909,12 +908,9 @@ async function main() {
         JSON.stringify({ file: `results_${date}.json` }),
         `${folder}/latest.json`
     );
-    await Promise.all([
-        uploadToGitHub(Papa.unparse(senate.filteredRows), `polls/senate_${date}.csv`),
-        uploadToGitHub(Papa.unparse(gov.filteredRows),    `polls/gov_${date}.csv`),
-        uploadToGitHub(Papa.unparse(house.filteredRows),  `polls/house_${date}.csv`),
-    ]);
-    console.log("generate.js: uploaded filtered CSVs to github → polls/");
+    await uploadToGitHub(Papa.unparse(senate.filteredRows), `polls/senate_${date}.csv`);
+    await uploadToGitHub(Papa.unparse(gov.filteredRows),    `polls/gov_${date}.csv`);
+    await uploadToGitHub(Papa.unparse(house.filteredRows),  `polls/house_${date}.csv`);
 }
 
 main().catch(err => { console.error(err); process.exit(1); });
