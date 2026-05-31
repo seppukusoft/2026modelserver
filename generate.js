@@ -264,6 +264,7 @@ async function runRacePipeline(url, config) {
 
     function filterPolls(polls) {
         const filtered = polls.filter(poll => {
+            if (poll.responses.length < 2) return false; 
             for (const r of poll.responses) {
                 r._candidateLC ??= r.candidate.toLowerCase();
                 if (r._candidateLC.includes("generic")) return false;
@@ -442,7 +443,7 @@ async function runRacePipeline(url, config) {
     const estimates  = computeEstimates(byRegion);
     return {
         outcomes: { ...defaults, ...computeOutcomes(estimates, byRegion, marketPrior) },
-        filteredRows: filtered.flatMap(p => p._rows),
+        filteredPolls: filtered, 
     };
 }
 
@@ -690,7 +691,7 @@ function subtractSeats(seats, total) {
 
 async function buildSenate() {
     console.log("  fetching senate...");
-    const { outcomes, filteredRows } = await runRacePipeline(senateLink, {
+    const { outcomes, filteredPolls } = await runRacePipeline(senateLink, {
         excludeRe:            SENATE_EXCLUDE_RE,
         primaryWinners:       primaryWinnersByState,
         pviMap:               cookPVI,
@@ -736,12 +737,12 @@ async function buildSenate() {
         <span style="color:#d22532"><b>R: ${seatR + seats.REP}</b>  ${netStr(gains, losses, "REP", "#d22532")}</span>
     `;
 
-    return { regions, seats, summaryHTML, filteredRows };
+    return { regions, seats, summaryHTML, filteredPolls };
 }
 
 async function buildGov() {
     console.log("  fetching governors...");
-    const { outcomes, filteredRows } = await runRacePipeline(Link_gov, {
+    const { outcomes, filteredPolls } = await runRacePipeline(Link_gov, {
         excludeRe:            GOV_EXCLUDE_RE,
         primaryWinners:       primaryWinnersByState_gov,
         pviMap:               cookPVI_gov,
@@ -786,12 +787,12 @@ async function buildGov() {
         <span style="color:#d22532"><b>R: ${seatR + seats.REP}</b>  ${netStr(gains, losses, "REP", "#d22532")}</span>
     `;
 
-    return { regions, seats, summaryHTML, filteredRows };
+    return { regions, seats, summaryHTML, filteredPolls };
 }
 
 async function buildHouse() {
     console.log("  fetching house...");
-    const { outcomes, filteredRows } = await runRacePipeline(houseLink, {
+    const { outcomes, filteredPolls } = await runRacePipeline(houseLink, {
         excludeRe:            HOUSE_EXCLUDE_RE,
         primaryWinners:       housePrimaryWinnersByDistrict,
         pviMap:               houseDistrictPVI,
@@ -840,7 +841,7 @@ async function buildHouse() {
         ${seatI ? `<span style="color:#8e20c7"><b>+ ${seatI + seats.IND} I</b> ${netStr(gains, losses, "IND", "#8e20c7")}</span>` : ""}
     `;
 
-    return { regions, seats, summaryHTML, filteredRows };
+    return { regions, seats, summaryHTML, filteredPolls };
 }
 
 const owner  = process.env.GITHUB_OWNER;
@@ -892,9 +893,9 @@ async function main() {
         buildHouse(),
     ]);
 
-    const { filteredRows: _s, ...senateFinal } = senate;
-    const { filteredRows: _g, ...govFinal }    = gov;
-    const { filteredRows: _h, ...houseFinal }  = house;
+    const { filteredPolls: _s, ...senateFinal } = senate;
+    const { filteredPolls: _g, ...govFinal }    = gov;
+    const { filteredPolls: _h, ...houseFinal }  = house;
 
     const output = {
         generated: new Date().toISOString(),
@@ -903,14 +904,19 @@ async function main() {
         house:  houseFinal,
     };
 
+    function cleanPoll(poll) {
+        const { _normalized, _rows, ...rest } = poll;
+        return rest;
+    }
+
     await uploadToGitHub(JSON.stringify(output, null, 2));
     await uploadToGitHub(
         JSON.stringify({ file: `results_${date}.json` }),
         `${folder}/latest.json`
     );
-    await uploadToGitHub(Papa.unparse(senate.filteredRows), `polls/senate_${date}.csv`);
-    await uploadToGitHub(Papa.unparse(gov.filteredRows),    `polls/gov_${date}.csv`);
-    await uploadToGitHub(Papa.unparse(house.filteredRows),  `polls/house_${date}.csv`);
+    await uploadToGitHub(JSON.stringify(senate.filteredPolls.map(cleanPoll), null, 2), `polls/senate_${date}.json`);
+    await uploadToGitHub(JSON.stringify(gov.filteredPolls.map(cleanPoll),    null, 2), `polls/gov_${date}.json`);
+    await uploadToGitHub(JSON.stringify(house.filteredPolls.map(cleanPoll),  null, 2), `polls/house_${date}.json`);
 }
 
 main().catch(err => { console.error(err); process.exit(1); });
