@@ -222,6 +222,7 @@ async function runRacePipeline(url, config) {
                             methodologyMultiplier *
                             ppmMultiplier,
                     responses: [],
+                    _rows: [], 
                 };
             }
             poll.responses.push({
@@ -229,6 +230,7 @@ async function runRacePipeline(url, config) {
                 party:     normalizeParty(row.party),
                 pct:       row.pct,
             });
+            poll._rows.push(row); 
         }
         return Object.values(polls);
     }
@@ -441,7 +443,7 @@ async function runRacePipeline(url, config) {
     const estimates  = computeEstimates(byRegion);
     return {
         outcomes: { ...defaults, ...computeOutcomes(estimates, byRegion, marketPrior) },
-        filteredRows: rows,
+        filteredRows: filtered.flatMap(p => p._rows),
     };
 }
 
@@ -884,22 +886,27 @@ async function uploadToGitHub(content, path = `${folder}/results_${new Date().to
 
 async function main() {
     console.log("generate.js: starting pipeline runs...");
+    const date = new Date().toISOString().split("T")[0]; 
     const [senate, gov, house] = await Promise.all([
         buildSenate(),
         buildGov(),
         buildHouse(),
     ]);
 
+    const { filteredRows: _s, ...senateFinal } = senate;
+    const { filteredRows: _g, ...govFinal }    = gov;
+    const { filteredRows: _h, ...houseFinal }  = house;
+
     const output = {
         generated: new Date().toISOString(),
-        senate,
-        gov,
-        house,
+        senate: senateFinal,
+        gov:    govFinal,
+        house:  houseFinal,
     };
 
     await uploadToGitHub(JSON.stringify(output, null, 2));
     await uploadToGitHub(
-        JSON.stringify({ file: `results_${new Date().toISOString().split("T")[0]}.json` }),
+        JSON.stringify({ file: `results_${date}.json` }),
         `${folder}/latest.json`
     );
     await Promise.all([
