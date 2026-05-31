@@ -439,7 +439,10 @@ async function runRacePipeline(url, config) {
     const filtered   = filterPolls(thresholded);
     const byRegion   = groupPollsByRegion(filtered);
     const estimates  = computeEstimates(byRegion);
-    return { ...defaults, ...computeOutcomes(estimates, byRegion, marketPrior) };
+    return {
+        outcomes: { ...defaults, ...computeOutcomes(estimates, byRegion, marketPrior) },
+        filteredRows: rows,
+    };
 }
 
 let _polymarketPromise = null;
@@ -686,7 +689,7 @@ function subtractSeats(seats, total) {
 
 async function buildSenate() {
     console.log("  fetching senate...");
-    const outcomes = await runRacePipeline(senateLink, {
+    const { outcomes, filteredRows } = await runRacePipeline(senateLink, {
         excludeRe:            SENATE_EXCLUDE_RE,
         primaryWinners:       primaryWinnersByState,
         pviMap:               cookPVI,
@@ -732,12 +735,12 @@ async function buildSenate() {
         <span style="color:#d22532"><b>R: ${seatR + seats.REP}</b>  ${netStr(gains, losses, "REP", "#d22532")}</span>
     `;
 
-    return { regions, seats, summaryHTML };
+    return { regions, seats, summaryHTML, filteredRows };
 }
 
 async function buildGov() {
     console.log("  fetching governors...");
-    const outcomes = await runRacePipeline(Link_gov, {
+    const { outcomes, filteredRows } = await runRacePipeline(Link_gov, {
         excludeRe:            GOV_EXCLUDE_RE,
         primaryWinners:       primaryWinnersByState_gov,
         pviMap:               cookPVI_gov,
@@ -782,12 +785,12 @@ async function buildGov() {
         <span style="color:#d22532"><b>R: ${seatR + seats.REP}</b>  ${netStr(gains, losses, "REP", "#d22532")}</span>
     `;
 
-    return { regions, seats, summaryHTML };
+    return { regions, seats, summaryHTML, filteredRows };
 }
 
 async function buildHouse() {
     console.log("  fetching house...");
-    const outcomes = await runRacePipeline(houseLink, {
+    const { outcomes, filteredRows } = await runRacePipeline(houseLink, {
         excludeRe:            HOUSE_EXCLUDE_RE,
         primaryWinners:       housePrimaryWinnersByDistrict,
         pviMap:               houseDistrictPVI,
@@ -836,7 +839,7 @@ async function buildHouse() {
         ${seatI ? `<span style="color:#8e20c7"><b>+ ${seatI + seats.IND} I</b> ${netStr(gains, losses, "IND", "#8e20c7")}</span>` : ""}
     `;
 
-    return { regions, seats, summaryHTML };
+    return { regions, seats, summaryHTML, filteredRows };
 }
 
 const owner  = process.env.GITHUB_OWNER;
@@ -899,6 +902,12 @@ async function main() {
         JSON.stringify({ file: `results_${new Date().toISOString().split("T")[0]}.json` }),
         `${folder}/latest.json`
     );
+    await Promise.all([
+        uploadToGitHub(Papa.unparse(senate.filteredRows), `polls/senate_${date}.csv`),
+        uploadToGitHub(Papa.unparse(gov.filteredRows),    `polls/gov_${date}.csv`),
+        uploadToGitHub(Papa.unparse(house.filteredRows),  `polls/house_${date}.csv`),
+    ]);
+    console.log("generate.js: uploaded filtered CSVs to github → polls/");
 }
 
 main().catch(err => { console.error(err); process.exit(1); });
