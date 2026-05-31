@@ -162,15 +162,14 @@ async function runRacePipeline(url, config) {
     }
 
     const someoneElseRe = /someone else/i;
+    // Populated after filtering; regions where any poll names a 3p candidate.
+    const regionsWithNamed3p = new Set();
 
     function normalizeResponses(poll) {
         if (poll._normalized) return poll._normalized;
         const discounted  = applyPartisanSponsorDiscount(poll);
         const biasCorrect = applyBiasCorrection(discounted, poll.pollsterBias);
-        const realCandidateCount = biasCorrect.filter(
-            r => !excludeRe.test(r.candidate) && !someoneElseRe.test(r.candidate)
-        ).length;
-        const excludeSomeoneElse = realCandidateCount >= 3;
+        const excludeSomeoneElse = regionsWithNamed3p.has(poll[regionKey]);
         let sum = 0;
         const cleaned = [];
         for (const r of biasCorrect) {
@@ -446,6 +445,16 @@ async function runRacePipeline(url, config) {
     const polls      = groupByPollId(rows, ratingsMap);
     const thresholded = applyCandidateThreshold(polls);
     const filtered   = filterPolls(thresholded);
+    for (const poll of filtered) {
+        for (const r of poll.responses) {
+            if (!excludeRe.test(r.candidate) &&
+                !someoneElseRe.test(r.candidate) &&
+                r.party !== "DEM" && r.party !== "REP") {
+                regionsWithNamed3p.add(poll[regionKey]);
+                break;
+            }
+        }
+    }
     const byRegion   = groupPollsByRegion(filtered);
     const estimates  = computeEstimates(byRegion);
     return {
