@@ -127,10 +127,12 @@ async function runRacePipeline(url, config) {
         defaults = {},
         rcvRegions = [],
         ratingsUrl,
+        excludeQuestionIds = []
     } = config;
 
     const notGenYetSet  = new Set(notGenYet);
     const rcvRegionsSet = new Set(rcvRegions);
+    const excludeQuestionIdsSet = new Set(excludeQuestionIds);
     const partyCache    = Object.create(null);
     const lastNameCache = new Map();
 
@@ -190,6 +192,7 @@ async function runRacePipeline(url, config) {
 
         for (const row of rows) {
             if (!row.poll_id || !row.question_id) continue;
+            if (excludeQuestionIdsSet.has(row.question_id)) continue;
             const key = row.poll_id + "_" + row.question_id;
             let poll = polls[key];
             if (!poll) {
@@ -720,6 +723,7 @@ async function buildSenate() {
         currentParty:         senateCurrentParty,
         ratingsUrl:           "./data-GiFps.csv",
         rcvRegions:           ["AK", "ME"],
+        excludeQuestionIds: ["71969919-2d37-415e-8ff5-e5f37ce006dd", "521f4949-6872-4760-a27b-be28e43e685f", "0b9242a3-8c22-475b-a64d-edea143786d2"],
     });
 
     const seats  = { ...blankSeats(), DEM: 32, REP: 31, IND: 2 };
