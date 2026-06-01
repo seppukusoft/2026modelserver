@@ -723,7 +723,7 @@ async function buildSenate() {
         currentParty:         senateCurrentParty,
         ratingsUrl:           "./data-GiFps.csv",
         rcvRegions:           ["AK", "ME"],
-        excludeQuestionIds: ["71969919-2d37-415e-8ff5-e5f37ce006dd", "521f4949-6872-4760-a27b-be28e43e685f", "0b9242a3-8c22-475b-a64d-edea143786d2"],
+        excludeQuestionIds: ["4e57a172-4867-4b0c-a8ff-534bcf7ad2b3", "12e20038-9490-49cb-987c-808f22073a71", "8641969d-bfcf-4367-93b8-d7ae2d45694b"],
     });
 
     const seats  = { ...blankSeats(), DEM: 32, REP: 31, IND: 2 };
