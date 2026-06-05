@@ -553,6 +553,7 @@ const govDefaults = {
     "WI": { _isDefault: true, _sortedWinProbabilities: [["Democrat",             { pct: 0.73, party: "DEM" }]], _sortedVoteEstimates: [["Democrat",             { pct: 50, party: "DEM" }]] },
     "ME": { _isDefault: true, _sortedWinProbabilities: [["Democrat",             { pct: 0.76, party: "DEM" }]], _sortedVoteEstimates: [["Democrat",             { pct: 51, party: "DEM" }]] },
     "HI": { _isDefault: true, _sortedWinProbabilities: [["Josh Green",           { pct: 0.96, party: "DEM" }]], _sortedVoteEstimates: [["Josh Green",           { pct: 63, party: "DEM" }]] },
+    "IA": { _isDefault: true, _sortedWinProbabilities: [["Rob Sand",{ pct: 0.53, party: "DEM" }],["Zach Lahn", { pct: 0.47, party: "REP" }]],   _sortedVoteEstimates: [["Rob Sand", { pct: 50.50, party: "DEM" }],["Zach Lahn", { pct: 49.50, party: "REP" }]] }
 };
 
 const _defaultsSrc = readFileSync(resolve(__dirname, "defaults.js"), "utf8");
