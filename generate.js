@@ -931,8 +931,30 @@ async function main() {
     }
 
     await uploadToGitHub(JSON.stringify(output, null, 2));
+
+    let existingDates = [];
+    try {
+        const token = process.env.GITHUB_TOKEN;
+        const latestApiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${folder}/latest.json?ref=${branch}`;
+        const existing = await fetch(latestApiUrl, {
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Accept": "application/vnd.github+json",
+                "X-GitHub-Api-Version": "2022-11-28",
+            },
+        });
+        if (existing.ok) {
+            const data = await existing.json();
+            const parsed = JSON.parse(Buffer.from(data.content, "base64").toString("utf8"));
+            if (Array.isArray(parsed.dates)) existingDates = parsed.dates;
+        }
+    } catch (e) {
+        console.warn("generate.js: could not read existing latest.json, starting fresh dates list", e.message);
+    }
+
+    const allDates = [...new Set([...existingDates, date])].sort();
     await uploadToGitHub(
-        JSON.stringify({ file: `results_${date}.json` }),
+        JSON.stringify({ file: `results_${date}.json`, dates: allDates }),
         `${folder}/latest.json`
     );
     await uploadToGitHub(JSON.stringify(senate.filteredPolls.map(cleanPoll), null, 2), `polls/senate_${date}.json`);
