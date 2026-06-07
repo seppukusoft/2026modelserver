@@ -957,9 +957,9 @@ async function main() {
         JSON.stringify({ file: `results_${date}.json`, dates: allDates }),
         `${folder}/latest.json`
     );
-    await uploadToGitHub(JSON.stringify(senate.filteredPolls.map(cleanPoll), null, 2), `polls/senate_${date}.json`);
-    await uploadToGitHub(JSON.stringify(gov.filteredPolls.map(cleanPoll),    null, 2), `polls/gov_${date}.json`);
-    await uploadToGitHub(JSON.stringify(house.filteredPolls.map(cleanPoll),  null, 2), `polls/house_${date}.json`);
+    await uploadToGitHub(JSON.stringify(senate.filteredPolls.map(cleanPoll)), `polls/senate_${date}.json`);
+    await uploadToGitHub(JSON.stringify(gov.filteredPolls.map(cleanPoll)), `polls/gov_${date}.json`);
+    await uploadToGitHub(JSON.stringify(house.filteredPolls.map(cleanPoll)), `polls/house_${date}.json`);
 }
 
 main().catch(err => { console.error(err); process.exit(1); });
