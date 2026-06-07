@@ -930,7 +930,7 @@ async function main() {
         return rest;
     }
 
-    await uploadToGitHub(JSON.stringify(output, null, 2));
+    await uploadToGitHub(JSON.stringify(output));
 
     let existingDates = [];
     try {
