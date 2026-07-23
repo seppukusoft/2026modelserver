@@ -566,7 +566,7 @@ const { houseDefaults } = _defaultsModule.exports;
 const senateLink = "https://www.nytimes.com/newsgraphics/polls/senate.csv";
 const senateNotGenYet = ["US", "MS"];
 const primaryWinnersByState = {
-    NE: "dan osborn", ME: "graham platner", OH: "sherrod brown",
+    NE: "dan osborn", ME: "x jackson", OH: "sherrod brown",
     SD: "julian beaudion", IA: "josh turek", GA: "mike collins",
     NH: "john sununu", MN: "x flanagan", KS: "x schmidt",
     MA: "x markey", FL: "x vindman", MI: "x el-sayed",
@@ -583,7 +583,7 @@ const SENATE_NO_ELECTION = ["HI","CA","NV","UT","AZ","WA","ND","MO","WI","IN","P
 const senateCurrentParty = { VA:"DEM", AL:"REP", NC:"REP", AK:"REP", MN:"DEM", NH:"DEM", SD:"REP", ID:"REP", NE:"REP", RI:"DEM", NM:"DEM", MI:"DEM", GA:"DEM", WV:"REP", FL:"REP", OR:"DEM", KY:"REP", KS:"REP", MA:"DEM", WY:"REP", OH:"REP", MS:"REP", CO:"DEM", TN:"REP", SC:"REP", IA:"REP", IL:"DEM", MT:"REP", AR:"REP", TX:"REP", DE:"DEM", ME:"REP", LA:"REP", NJ:"DEM", OK:"REP" };
 
 const Link_gov = "https://www.nytimes.com/newsgraphics/polls/governor.csv";
-const notGenYet_gov = ["US", "GA", "WI"];
+const notGenYet_gov = ["US", "WI"];
 const primaryWinnersByState_gov = {
     RI:"x foulkes", OR:"x drazan", FL:"x donalds", MA:"x minogue", MN:"x lindell",
     NH:"x warmington", NV:"x lombardo", AK:"x wilson", AZ:"x biggs", MI:"x james", WI:"x tiffany",
