@@ -587,7 +587,7 @@ const notGenYet_gov = ["US", "WI"];
 const primaryWinnersByState_gov = {
     RI:"x foulkes", OR:"x drazan", FL:"x donalds", MA:"x minogue", MN:"x lindell",
     NH:"x warmington", NV:"x lombardo", AK:"x wilson", AZ:"x biggs", MI:"x james", WI:"x tiffany",
-    CA: "x hilton", IA: "x lahn"
+    CA: "x hilton", IA: "x lahn", GA:"x jackson"
 };
 const cookPVI_gov = { ...cookPVI }; 
 const GOV_EXCLUDE_RE = /undecided|don't know|demings|dixon|porter|steyer|lytle|duggan|stefanik|pizzo|bell|other|refused|would not vote/i;
