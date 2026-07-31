@@ -583,7 +583,7 @@ const SENATE_NO_ELECTION = ["HI","CA","NV","UT","AZ","WA","ND","MO","WI","IN","P
 const senateCurrentParty = { VA:"DEM", AL:"REP", NC:"REP", AK:"REP", MN:"DEM", NH:"DEM", SD:"REP", ID:"REP", NE:"REP", RI:"DEM", NM:"DEM", MI:"DEM", GA:"DEM", WV:"REP", FL:"REP", OR:"DEM", KY:"REP", KS:"REP", MA:"DEM", WY:"REP", OH:"REP", MS:"REP", CO:"DEM", TN:"REP", SC:"REP", IA:"REP", IL:"DEM", MT:"REP", AR:"REP", TX:"REP", DE:"DEM", ME:"REP", LA:"REP", NJ:"DEM", OK:"REP" };
 
 const Link_gov = "https://www.nytimes.com/newsgraphics/polls/governor.csv";
-const notGenYet_gov = ["US", "WI"];
+const notGenYet_gov = ["US"];
 const primaryWinnersByState_gov = {
     RI:"x foulkes", OR:"x drazan", FL:"x donalds", MA:"x minogue", MN:"x lindell",
     NH:"x warmington", NV:"x lombardo", AK:"x wilson", AZ:"x biggs", MI:"x james", WI:"x hong",
