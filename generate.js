@@ -578,7 +578,7 @@ const cookPVI = {
     MO:9, MT:6, NE:8, NV:1, NH:-2, NJ:0, NM:-7, NY:-8, NC:1, ND:18, OH:3, OK:17, OR:-8,
     PA:1, RI:-8, SC:8, SD:15, TN:14, TX:6, UT:11, VT:-9, VA:-6, WA:-10, WV:21, WI:-2, WY:23,
 };
-const SENATE_EXCLUDE_RE = /undecided|don't know|daines|ryan|allred|neill|swanson|crockett|other|refused|would not vote/i;
+const SENATE_EXCLUDE_RE = /undecided|don't know|daines|ryan|allred|neill|crockett|other|refused|would not vote/i;
 const SENATE_NO_ELECTION = ["HI","CA","NV","UT","AZ","WA","ND","MO","WI","IN","PA","NY","MD","VT","CT"];
 const senateCurrentParty = { VA:"DEM", AL:"REP", NC:"REP", AK:"REP", MN:"DEM", NH:"DEM", SD:"REP", ID:"REP", NE:"REP", RI:"DEM", NM:"DEM", MI:"DEM", GA:"DEM", WV:"REP", FL:"REP", OR:"DEM", KY:"REP", KS:"REP", MA:"DEM", WY:"REP", OH:"REP", MS:"REP", CO:"DEM", TN:"REP", SC:"REP", IA:"REP", IL:"DEM", MT:"REP", AR:"REP", TX:"REP", DE:"DEM", ME:"REP", LA:"REP", NJ:"DEM", OK:"REP" };
 
@@ -590,7 +590,7 @@ const primaryWinnersByState_gov = {
     CA: "x hilton", IA: "x lahn", GA:"x jackson", VT:"x janoo"
 };
 const cookPVI_gov = { ...cookPVI }; 
-const GOV_EXCLUDE_RE = /undecided|don't know|demings|dixon|porter|steyer|lytle|duggan|stefanik|pizzo|bell|other|refused|would not vote/i;
+const GOV_EXCLUDE_RE = /undecided|don't know|demings|dixon|porter|swanson|steyer|lytle|duggan|stefanik|pizzo|bell|other|refused|would not vote/i;
 const GOV_NO_ELECTION = ["WA","UT","MT","ND","MO","LA","MS","KY","IN","WV","VA","NC","DE","NJ"];
 const govCurrentParty = { AL:"REP", AK:"REP", AZ:"DEM", AR:"REP", CA:"DEM", CO:"DEM", CT:"DEM", FL:"REP", GA:"REP", HI:"DEM", ID:"REP", IL:"DEM", IA:"REP", KS:"DEM", ME:"DEM", MD:"DEM", MA:"DEM", MI:"DEM", MN:"DEM", NE:"REP", NV:"REP", NH:"REP", NM:"DEM", NY:"DEM", OH:"REP", OK:"REP", OR:"DEM", PA:"DEM", RI:"DEM", SC:"REP", SD:"REP", TN:"REP", TX:"REP", VT:"REP", WI:"DEM", WY:"REP" };
 
