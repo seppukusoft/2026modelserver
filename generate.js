@@ -776,6 +776,7 @@ async function buildGov() {
         ratingsUrl:           "./data-GiFps.csv",
         currentParty:         govCurrentParty,
         rcvRegions:           ["AK"],
+        excludeQuestionIds: ["d9dc3470-4920-48e7-8a1a-9b679108811a", "d0deaf86-1535-4335-ada2-900774ec77ff"],
     });
 
     const seats  = { ...blankSeats(), DEM: 6, REP: 8, IND: 0 };
