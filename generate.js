@@ -586,11 +586,11 @@ const Link_gov = "https://www.nytimes.com/newsgraphics/polls/governor.csv";
 const notGenYet_gov = ["US"];
 const primaryWinnersByState_gov = {
     RI:"x foulkes", OR:"x drazan", FL:"x donalds", MA:"x minogue", MN:"x lindell",
-    NH:"x warmington", NV:"x lombardo", AK:"x wilson", AZ:"x biggs", MI:"x james", WI:"x hong",
+    NH:"x warmington", NV:"x lombardo", AK:"x kreiss-tomkins", AZ:"x biggs", MI:"x james", WI:"x hong",
     CA: "x hilton", IA: "x lahn", GA:"x jackson", VT:"x janoo"
 };
 const cookPVI_gov = { ...cookPVI }; 
-const GOV_EXCLUDE_RE = /undecided|don't know|demings|dixon|porter|swanson|steyer|lytle|duggan|stefanik|pizzo|bell|other|refused|would not vote/i;
+const GOV_EXCLUDE_RE = /undecided|don't know|demings|dixon|porter|begich|swanson|steyer|lytle|duggan|stefanik|pizzo|bell|other|refused|would not vote/i;
 const GOV_NO_ELECTION = ["WA","UT","MT","ND","MO","LA","MS","KY","IN","WV","VA","NC","DE","NJ"];
 const govCurrentParty = { AL:"REP", AK:"REP", AZ:"DEM", AR:"REP", CA:"DEM", CO:"DEM", CT:"DEM", FL:"REP", GA:"REP", HI:"DEM", ID:"REP", IL:"DEM", IA:"REP", KS:"DEM", ME:"DEM", MD:"DEM", MA:"DEM", MI:"DEM", MN:"DEM", NE:"REP", NV:"REP", NH:"REP", NM:"DEM", NY:"DEM", OH:"REP", OK:"REP", OR:"DEM", PA:"DEM", RI:"DEM", SC:"REP", SD:"REP", TN:"REP", TX:"REP", VT:"REP", WI:"DEM", WY:"REP" };
 
