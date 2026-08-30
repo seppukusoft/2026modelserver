@@ -717,7 +717,9 @@ async function buildSenate() {
         pviMap:               cookPVI,
         notGenYet:            senateNotGenYet,
         fixKnownIndependents: (state, name) =>
-            state === "NE" && name?.toLowerCase().includes("osborn") ? "IND" : null,
+            state === "NE" && name?.toLowerCase().includes("osborn") ? "IND" : 
+            state === "AK" && name?.toLowerCase().includes("j. sullivan") ? "DEM" :
+            null,
         getRegionFromRow:     row => row.state,
         regionKey:            "state",
         defaults:             senateDefaults,
