@@ -573,7 +573,7 @@ const primaryWinnersByState = {
     TX: "x paxton", KY: "x barr", ID: "x achilles"
 };
 const cookPVI = {
-    AL:15, AK:6, AZ:0, AR:15, CA:-9, CO:-6, CT:-8, DE:-8, FL:8, GA:2, HI:-13, ID:18,
+    AL:15, AK:3, AZ:0, AR:15, CA:-9, CO:-6, CT:-8, DE:-8, FL:8, GA:2, HI:-13, ID:18,
     IL:-6, IN:9, IA:6, KS:8, KY:15, LA:11, ME:-4, MD:-15, MA:-10, MI:-3, MN:-7, MS:11,
     MO:9, MT:6, NE:8, NV:1, NH:-2, NJ:0, NM:-7, NY:-8, NC:1, ND:18, OH:3, OK:17, OR:-8,
     PA:1, RI:-8, SC:8, SD:15, TN:14, TX:6, UT:11, VT:-9, VA:-6, WA:-10, WV:21, WI:-2, WY:23,
