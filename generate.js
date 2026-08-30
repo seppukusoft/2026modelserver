@@ -755,7 +755,7 @@ async function buildSenate() {
     const seatI = seats.solidI + seats.likelyI + seats.leanI + seats.tiltI;
     const summaryHTML = `
         <span style="color:#577ccc"><b>D: ${seatD + seats.DEM}</b>  ${netStr(gains, losses, "DEM", "#577ccc")}</span>
-        ${seatI ? `<span style="color:#8e20c7"><b>+ ${seatI + seats.IND} I</b> ${netStr(gains, losses, "IND", "#8e20c7")}</span>` : ""}
+        ${(seatI + seats.IND) ? `<span style="color:#8e20c7"><b>+ ${seatI + seats.IND} I</b> ${netStr(gains, losses, "IND", "#8e20c7")}</span>` : ""}
         &nbsp;|&nbsp;
         <span style="color:#d22532"><b>R: ${seatR + seats.REP}</b>  ${netStr(gains, losses, "REP", "#d22532")}</span>
     `;
