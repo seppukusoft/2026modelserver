@@ -592,7 +592,7 @@ const cookPVI = {
     MO:9, MT:6, NE:8, NV:1, NH:-2, NJ:0, NM:-7, NY:-8, NC:1, ND:18, OH:3, OK:17, OR:-8,
     PA:1, RI:-8, SC:8, SD:15, TN:14, TX:6, UT:11, VT:-9, VA:-6, WA:-10, WV:21, WI:-2, WY:23,
 };
-const SENATE_EXCLUDE_RE = /undecided|don't know|daines|ryan|roth|lindsey|allred|heikes|neill|crockett|other|refused|would not vote/i;
+const SENATE_EXCLUDE_RE = /undecided|don't know|daines|ryan|roth|lindsey|allred|darden|neill|crockett|other|refused|would not vote/i;
 const SENATE_NO_ELECTION = ["HI","CA","NV","UT","AZ","WA","ND","MO","WI","IN","PA","NY","MD","VT","CT"];
 const senateCurrentParty = { VA:"DEM", AL:"REP", NC:"REP", AK:"REP", MN:"DEM", NH:"DEM", SD:"REP", ID:"REP", NE:"REP", RI:"DEM", NM:"DEM", MI:"DEM", GA:"DEM", WV:"REP", FL:"REP", OR:"DEM", KY:"REP", KS:"REP", MA:"DEM", WY:"REP", OH:"REP", MS:"REP", CO:"DEM", TN:"REP", SC:"REP", IA:"REP", IL:"DEM", MT:"REP", AR:"REP", TX:"REP", DE:"DEM", ME:"REP", LA:"REP", NJ:"DEM", OK:"REP" };
 
