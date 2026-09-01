@@ -156,11 +156,11 @@ async function runRacePipeline(url, config) {
     }
 
     function applyPartisanSponsorDiscount(poll) {
-        // const sp = poll.sponsorParty;
-        // if (sp === "IND") return poll.responses;
-        // return poll.responses.map(r =>
-        //     r.party === sp ? { ...r, pct: (r.pct || 0) * 0.85 } : r
-        // );
+        const sp = poll.sponsorParty;
+        if (sp === "IND") return poll.responses;
+        return poll.responses.map(r =>
+            r.party === sp ? { ...r, pct: (r.pct || 0) * 0.95 } : r
+        );
         return poll.responses;
     }
 
@@ -174,24 +174,24 @@ async function runRacePipeline(url, config) {
         const excludeSomeoneElse = regionsWithNamed3p.has(poll[regionKey]);
         let sum = 0;
         const cleaned = [];
-        for (const r of biasCorrect) {
-            if (!excludeRe.test(r.candidate) &&
-                !(excludeSomeoneElse && someoneElseRe.test(r.candidate))) {
-                cleaned.push(r);
-                sum += r.pct || 0;
-            }
-        }
-        if (!sum) return (poll._normalized = cleaned);
-        const scale = 100 / sum;
-        return (poll._normalized = cleaned.map(r => ({ ...r, pct: r.pct * scale })));
         // for (const r of biasCorrect) {
         //     if (!excludeRe.test(r.candidate) &&
         //         !(excludeSomeoneElse && someoneElseRe.test(r.candidate))) {
         //         cleaned.push(r);
+        //         sum += r.pct || 0;
         //     }
         // }
+        // if (!sum) return (poll._normalized = cleaned);
+        // const scale = 100 / sum;
+        // return (poll._normalized = cleaned.map(r => ({ ...r, pct: r.pct * scale })));
+        for (const r of biasCorrect) {
+            if (!excludeRe.test(r.candidate) &&
+                !(excludeSomeoneElse && someoneElseRe.test(r.candidate))) {
+                cleaned.push(r);
+            }
+        }
 
-        // return (poll._normalized = cleaned);
+        return (poll._normalized = cleaned);
     }
 
     function groupByPollId(rows, ratingsMap) {
