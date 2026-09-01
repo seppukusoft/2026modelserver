@@ -156,11 +156,12 @@ async function runRacePipeline(url, config) {
     }
 
     function applyPartisanSponsorDiscount(poll) {
-        const sp = poll.sponsorParty;
-        if (sp === "IND") return poll.responses;
-        return poll.responses.map(r =>
-            r.party === sp ? { ...r, pct: (r.pct || 0) * 0.85 } : r
-        );
+        // const sp = poll.sponsorParty;
+        // if (sp === "IND") return poll.responses;
+        // return poll.responses.map(r =>
+        //     r.party === sp ? { ...r, pct: (r.pct || 0) * 0.85 } : r
+        // );
+        return poll.responses;
     }
 
     const someoneElseRe = /someone else/i;
@@ -173,16 +174,24 @@ async function runRacePipeline(url, config) {
         const excludeSomeoneElse = regionsWithNamed3p.has(poll[regionKey]);
         let sum = 0;
         const cleaned = [];
+        // for (const r of biasCorrect) {
+        //     if (!excludeRe.test(r.candidate) &&
+        //         !(excludeSomeoneElse && someoneElseRe.test(r.candidate))) {
+        //         cleaned.push(r);
+        //         sum += r.pct || 0;
+        //     }
+        // }
+        // if (!sum) return (poll._normalized = cleaned);
+        // const scale = 100 / sum;
+        // return (poll._normalized = cleaned.map(r => ({ ...r, pct: r.pct * scale })));
         for (const r of biasCorrect) {
             if (!excludeRe.test(r.candidate) &&
                 !(excludeSomeoneElse && someoneElseRe.test(r.candidate))) {
                 cleaned.push(r);
-                sum += r.pct || 0;
             }
         }
-        if (!sum) return (poll._normalized = cleaned);
-        const scale = 100 / sum;
-        return (poll._normalized = cleaned.map(r => ({ ...r, pct: r.pct * scale })));
+
+        return (poll._normalized = cleaned);
     }
 
     function groupByPollId(rows, ratingsMap) {
@@ -214,6 +223,10 @@ async function runRacePipeline(url, config) {
 
                 const endDate = new Date(row.end_date);
                 const region  = getRegionFromRow(row);
+                const sponsorMultiplier =
+                    row.partisan === "Democratic" || row.partisan === "Republican"
+                        ? 0.85
+                        : 1.0;
                 poll = polls[key] = {
                     poll_id:      row.poll_id,
                     question_id:  row.question_id,
@@ -228,7 +241,8 @@ async function runRacePipeline(url, config) {
                     weight: Math.sqrt(row.sample_size / 2 || 250) *
                             Math.exp(-(now - endDate) / 86400000 / 30) *
                             methodologyMultiplier *
-                            ppmMultiplier,
+                            ppmMultiplier *
+                            sponsorMultiplier,
                     responses: [],
                     _rows: [], 
                 };
