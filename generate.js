@@ -353,7 +353,7 @@ async function runRacePipeline(url, config) {
             const polls  = pollMap[region] || [];
             let nEff = 0;
             for (const p of polls) nEff += p.weight;
-            const sigma = nEff <= 0 ? 5 : Math.max(7, 10 / Math.sqrt(nEff));
+            const sigma = nEff <= 0 ? 5 : Math.max(5, 10 / Math.sqrt(nEff));
 
             const pviAdjusted    = renormalizeEstimates(applyPviToEstimates(region, estimates[region], nEff));
             const marketAdjusted = applyMarketPriorToEstimates(region, pviAdjusted, marketPriors);
