@@ -600,7 +600,7 @@ const Link_gov = "https://www.nytimes.com/newsgraphics/polls/governor.csv";
 const notGenYet_gov = ["US"];
 const primaryWinnersByState_gov = {
     RI:"x foulkes", OR:"x drazan", FL:"x donalds", MA:"x minogue", MN:"x lindell",
-    NH:"x warmington", NV:"x lombardo", AK:"x kreiss-tomkins", AZ:"x biggs", MI:"x james", WI:"x hong",
+    NH:"x warmington", NV:"x lombardo", AK:"x kreiss-tomkins", AZ:"x biggs", MI:"x james", WI:"x crowley",
     CA: "x hilton", IA: "x lahn", GA:"x jackson", VT:"x janoo"
 };
 const cookPVI_gov = { ...cookPVI }; 
