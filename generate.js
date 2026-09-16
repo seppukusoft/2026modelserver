@@ -629,7 +629,7 @@ function houseMapDistrictCode(district) {
 }
 
 function computeRating(p) {
-    return p >= 0.97 ? "solid" : p >= 0.88 ? "likely" : p >= 0.67 ? "lean" : "tilt";
+    return p >= 0.97 ? "solid" : p >= 0.82 ? "likely" : p >= 0.67 ? "lean" : "tilt";
 }
 
 /**
