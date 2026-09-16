@@ -582,7 +582,7 @@ const senateNotGenYet = ["US", "PA"];
 const primaryWinnersByState = {
     NE: "dan osborn", ME: "x jackson", OH: "sherrod brown",
     SD: "julian beaudion", IA: "josh turek", GA: "mike collins",
-    NH: "john sununu", MN: "x flanagan", KS: "x schmidt",
+    NH: "john sununu", MN: "x flanagan", KS: "x hamilton",
     MA: "x markey", FL: "x nixon", MI: "x el-sayed",
     TX: "x paxton", KY: "x barr", ID: "x achilles"
 };
