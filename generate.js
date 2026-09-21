@@ -601,7 +601,7 @@ const notGenYet_gov = ["US"];
 const primaryWinnersByState_gov = {
     RI:"x foulkes", OR:"x drazan", FL:"x donalds", MA:"x minogue", MN:"x lindell",
     NH:"x warmington", NV:"x lombardo", AK:"x kreiss-tomkins", AZ:"x biggs", MI:"x james", WI:"x crowley",
-    CA: "x hilton", IA: "x lahn", GA:"x jackson", VT:"x janoo", CT:"x fazio"
+    CA: "x hilton", IA: "x lahn", GA:"x jackson", VT:"x janoo", CT:"x fazio", WY: "x barlow"
 };
 const cookPVI_gov = { ...cookPVI }; 
 const GOV_EXCLUDE_RE = /undecided|don't know|bishop|elliott|demings|dixon|porter|begich|swanson|steyer|lytle|duggan|stefanik|pizzo|bell|other|refused|would not vote/i;
