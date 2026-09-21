@@ -523,7 +523,7 @@ function applyMarketPriorToEstimates(state, estimates, marketPrior) {
 }
 
 const senateDefaults = {
-    "WY": { _isDefault: true, _sortedWinProbabilities: [["Harriet Hageman",   { pct: 1,    party: "REP" }]], _sortedVoteEstimates: [["Harriet Hageman",   { pct: 75, party: "REP" }]] },
+    "WY": { _isDefault: true, _sortedWinProbabilities: [["Eric Barlow",   { pct: 1,    party: "REP" }]], _sortedVoteEstimates: [["Harriet Hageman",   { pct: 75, party: "REP" }]] },
     "OR": { _isDefault: true, _sortedWinProbabilities: [["Jeff Merkley",      { pct: 0.95, party: "DEM" }]], _sortedVoteEstimates: [["Jeff Merkley",      { pct: 57, party: "DEM" }]] },
     "ID": { _isDefault: true, _sortedWinProbabilities: [["Jim Risch",         { pct: 1,    party: "REP" }]], _sortedVoteEstimates: [["Jim Risch",         { pct: 62, party: "REP" }]] },
     "CO": { _isDefault: true, _sortedWinProbabilities: [["John Hickenlooper", { pct: 0.92, party: "DEM" }]], _sortedVoteEstimates: [["John Hickenlooper", { pct: 56, party: "DEM" }]] },
