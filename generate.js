@@ -588,9 +588,9 @@ const primaryWinnersByState = {
 };
 const cookPVI = {
     AL:15, AK:5, AZ:2, AR:15, CA:-12, CO:-6, CT:-8, DE:-8, FL:6, GA:2, HI:-13, ID:18,
-    IL:-6, IN:9, IA:6, KS:8, KY:15, LA:11, ME:-4, MD:-15, MA:-14, MI:0, MN:-3, MS:11,
+    IL:-6, IN:9, IA:7, KS:8, KY:15, LA:11, ME:-4, MD:-15, MA:-14, MI:0, MN:-3, MS:11,
     MO:9, MT:10, NE:10, NV:1, NH:-2, NJ:4, NM:-5, NY:-8, NC:1, ND:18, OH:5, OK:17, OR:-8,
-    PA:1, RI:-8, SC:8, SD:15, TN:14, TX:6, UT:11, VT:-9, VA:-4, WA:-10, WV:21, WI:0, WY:23,
+    PA:1, RI:-8, SC:8, SD:15, TN:14, TX:7, UT:11, VT:-9, VA:-4, WA:-10, WV:21, WI:0, WY:23,
 };
 const SENATE_EXCLUDE_RE = /undecided|don't know|none|daines|beaudion|ryan|roth|lindsey|allred|darden|neill|crockett|other|refused|would not vote/i;
 const SENATE_NO_ELECTION = ["HI","CA","NV","UT","AZ","WA","ND","MO","WI","IN","PA","NY","MD","VT","CT"];
@@ -628,8 +628,8 @@ function houseMapDistrictCode(district) {
     return district;
 }
 
-function computeRating(p) {
-    return p >= 0.97 ? "solid" : p >= 0.82 ? "likely" : p >= 0.67 ? "lean" : "tilt";
+function computeRating(marginPts) {
+    return marginPts >= 15 ? "solid" : marginPts >= 5 ? "likely" : marginPts >= 1 ? "lean" : "tilt";
 }
 
 /**
@@ -647,7 +647,7 @@ function buildRegionEntry(region, outcome, currentParty, rcvRegions, mapRegion, 
 
     const [[winner, winnerData]] = outcome._sortedWinProbabilities;
     const winnerParty = winnerData.party;
-    const p = winnerData.pct;
+    const p = outcome.margin;
     const rating    = computeRating(p);
     const ratingKey = rating + winnerParty[0];
 
