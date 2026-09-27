@@ -410,7 +410,7 @@ async function runRacePipeline(url, config) {
                 if (pct > top1) { top2 = top1; top1 = pct; }
                 else if (pct > top2) top2 = pct;
             }
-            const margin = top2 === -Infinity ? 0 : top1 - top2;
+            const margin = top2 === -Infinity ? 15 : top1 - top2;
 
             const winProbs = monteCarloMulti(candidatePct, sigma);
             const winProbEntries = Object.entries(winProbs)
