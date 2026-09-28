@@ -628,6 +628,12 @@ function houseMapDistrictCode(district) {
     return district;
 }
 
+function marginFromVoteEstimates(voteEntries) {
+    const top1 = voteEntries[0]?.[1]?.pct ?? 0;
+    const top2 = voteEntries[1]?.[1]?.pct;
+    return top2 === undefined ? 15 : top1 - top2;
+}
+
 function computeRating(marginPts) {
     return marginPts >= 15 ? "solid" : marginPts >= 5 ? "likely" : marginPts >= 1 ? "lean" : "tilt";
 }
@@ -647,7 +653,7 @@ function buildRegionEntry(region, outcome, currentParty, rcvRegions, mapRegion, 
 
     const [[winner, winnerData]] = outcome._sortedWinProbabilities;
     const winnerParty = winnerData.party;
-    const p = outcome.margin;
+    const p = outcome.margin ?? marginFromVoteEstimates(outcome._sortedVoteEstimates);
     const rating    = computeRating(p);
     const ratingKey = rating + winnerParty[0];
 
