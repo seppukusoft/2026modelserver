@@ -117,7 +117,7 @@ async function runRacePipeline(url, config) {
         excludeRe,
         primaryWinners,
         pviMap,
-        pviOffset = 2.75,
+        pviOffset = 2.75 + 2.4,
         notGenYet,
         fixKnownIndependents,
         getRegionFromRow,
