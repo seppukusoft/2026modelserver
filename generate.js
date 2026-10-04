@@ -238,6 +238,7 @@ async function runRacePipeline(url, config) {
                     start_date:   row.start_date,
                     end_date:     row.end_date,
                     sample_size:  row.sample_size,
+                    population:   row.population,
                     sponsorParty: normalizeParty(row.partisan),
                     pollsterBias: bias,
                     weight: Math.sqrt(row.sample_size / 2 || 250) *
