@@ -118,6 +118,7 @@ async function runRacePipeline(url, config) {
         primaryWinners,
         pviMap,
         pviOffset = 2.75,
+        marketWeight = 0.06,
         notGenYet,
         fixKnownIndependents,
         getRegionFromRow,
@@ -357,7 +358,7 @@ async function runRacePipeline(url, config) {
             const sigma = nEff <= 0 ? 5 : Math.max(5, 10 / Math.sqrt(nEff));
 
             const pviAdjusted    = renormalizeEstimates(applyPviToEstimates(region, estimates[region], nEff));
-            const marketAdjusted = applyMarketPriorToEstimates(region, pviAdjusted, marketPriors);
+            const marketAdjusted = applyMarketPriorToEstimates(region, pviAdjusted, marketPriors, marketWeight);
 
             let finalEstimates      = marketAdjusted;
             let rcvEliminationOrder = [];
@@ -509,14 +510,14 @@ async function getPolymarketPriors() {
     return _polymarketPromise;
 }
 
-function applyMarketPriorToEstimates(state, estimates, marketPrior) {
+function applyMarketPriorToEstimates(state, estimates, marketPrior, weight = 0.06) {
     if (!marketPrior) return estimates;
     const out = Object.create(null);
     for (const candidate in estimates) {
         const { pct, party } = estimates[candidate];
         const marketTarget = marketPrior[party];
         out[candidate] = {
-            pct: marketTarget !== undefined ? (1 - 0.06) * pct + 0.06 * marketTarget : pct,
+            pct: marketTarget !== undefined ? (1 - weight) * pct + weight * marketTarget : pct,
             party,
         };
     }
@@ -738,13 +739,14 @@ function subtractSeats(seats, total) {
     return seats;
 }
 
-async function buildSenate(offset, pviMap) {
+async function buildSenate(offset, pviMap, marketWeight = 0.06) {
     console.log("  fetching senate...");
     const { outcomes, filteredPolls } = await runRacePipeline(senateLink, {
         excludeRe:            SENATE_EXCLUDE_RE,
         primaryWinners:       primaryWinnersByState,
         pviMap:               pviMap,
         pviOffset:            offset,
+        marketWeight:         marketWeight,
         notGenYet:            senateNotGenYet,
         fixKnownIndependents: (state, name) =>
             state === "NE" && name?.toLowerCase().includes("osborn") ? "IND" : 
@@ -794,13 +796,14 @@ async function buildSenate(offset, pviMap) {
     return { regions, seats, summaryHTML, filteredPolls };
 }
 
-async function buildGov(offset, pviMap = cookPVI_gov) {
+async function buildGov(offset, pviMap = cookPVI_gov, marketWeight = 0.06) {
     console.log("  fetching governors...");
     const { outcomes, filteredPolls } = await runRacePipeline(Link_gov, {
         excludeRe:            GOV_EXCLUDE_RE,
         primaryWinners:       primaryWinnersByState_gov,
         pviMap:               pviMap,
         pviOffset:            offset,
+        marketWeight:         marketWeight,
         notGenYet:            notGenYet_gov,
         fixKnownIndependents: (state, name) =>
             state === "MN" && name?.toLowerCase().includes("klobuchar") ? "DEM" : null,
@@ -846,13 +849,14 @@ async function buildGov(offset, pviMap = cookPVI_gov) {
     return { regions, seats, summaryHTML, filteredPolls };
 }
 
-async function buildHouse(offset, pviMap = houseDistrictPVI) {
+async function buildHouse(offset, pviMap = houseDistrictPVI, marketWeight = 0.06) {
     console.log("  fetching house...");
     const { outcomes, filteredPolls } = await runRacePipeline(houseLink, {
         excludeRe:            HOUSE_EXCLUDE_RE,
         primaryWinners:       housePrimaryWinnersByDistrict,
         pviMap:               pviMap,
         pviOffset:            offset,
+        marketWeight:         marketWeight,
         notGenYet:            houseNotGenYet,
         fixKnownIndependents: () => null,
         getRegionFromRow:     row => houseDistrictCode(row),
@@ -1039,9 +1043,9 @@ async function main() {
     // Run new model pipeline
     const nationalOffset = await getNationalOffset();
     const [senate_v2, gov_v2, house_v2] = await Promise.all([
-        buildSenate(nationalOffset, cookPVI_adj),
-        buildGov(nationalOffset, cookPVI_gov_adj),
-        buildHouse(nationalOffset, houseDistrictPVI_adj),
+        buildSenate(nationalOffset, cookPVI_adj, 0.01),
+        buildGov(nationalOffset, cookPVI_gov_adj, 0.01),
+        buildHouse(nationalOffset, houseDistrictPVI_adj, 0.01),
     ]);
 
     const { filteredPolls: _sv2, ...senateFinal_v2 } = senate_v2;
@@ -1089,4 +1093,3 @@ async function main() {
 }
 
 main().catch(err => { console.error(err); process.exit(1); });
-
