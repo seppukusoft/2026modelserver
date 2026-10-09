@@ -369,6 +369,7 @@ async function runRacePipeline(url, config) {
                 let currentSize = Object.keys(marketAdjusted).length;
                 while (currentSize > 2) {
                     const sortedByVote = Object.entries(current).sort((a, b) => a[1].pct - b[1].pct);
+                    if (sortedByVote[sortedByVote.length - 1][1].pct > 50) break;
                     const [elimName, elimData] = sortedByVote[0];
                     const elimPct   = elimData.pct;
                     const elimParty = elimData.party;
@@ -596,7 +597,7 @@ const cookPVI = {
     PA:1, RI:-8, SC:8, SD:15, TN:14, TX:7, UT:11, VT:-9, VA:-4, WA:-10, WV:21, WI:0, WY:23,
 };
 const cookPVI_adj = {
-    AL:22.3, AK:9.7, AZ:5.7, AR:23.9, CA:-6.6, CO:-2.4, CT:-2.7, DE:-5.6, FL:11, GA:5.4, HI:-4.1, ID:29.1, 
+    AL:22.3, AK:7.5, AZ:5.7, AR:23.9, CA:-6.6, CO:-2.4, CT:-2.7, DE:-5.6, FL:11, GA:5.4, HI:-4.1, ID:29.1, 
     IL:-2.1, IN:15.5, IA:13.7, KS:15.2, KY:24.9, LA:15.6, ME:2.5, MD:-10, MA:-10.5, MI:5.4, MN:1.4, MS:16.4,
     MO:14.5, MT:17.7, NE:16.5, NV:4.3, NH:2.9, NJ:7.7, NM:-0.4, NY:-2.8, NC:5.4, ND:26.1, OH:10.4, OK:27.4, OR:-4.1,
     PA:5.5, RI:-3.9, SC:15, SD:26.3, TN:21.6, TX:11, UT:19.4, VT:-3.4, VA:-0.1, WA:-3.5, WV:30.2, WI:5.6, WY:33.1
@@ -649,6 +650,27 @@ function computeRating(marginPts) {
     return marginPts >= 15 ? "solid" : marginPts >= 5 ? "likely" : marginPts >= 1 ? "lean" : "tilt";
 }
 
+const SMALL_CANDIDATE_THRESHOLD = 1.5;
+
+function groupSmallCandidates(entries, threshold = SMALL_CANDIDATE_THRESHOLD) {
+    const kept = [];
+    let other = 0;
+    for (const [name, data] of entries) {
+        if (data.pct < threshold) other += data.pct;
+        else kept.push([name, data]);
+    }
+
+    if (other <= 0) return kept;
+
+    const existing = kept.findIndex(([name]) => /someone else/i.test(name));
+    if (existing !== -1) {
+        kept[existing] = [kept[existing][0], { ...kept[existing][1], pct: kept[existing][1].pct + other }];
+        return kept;
+    }
+    kept.push(["Someone else", { pct: other, party: "IND" }]);
+    return kept;
+}
+
 /**
  * @param {string}   region      
  * @param {object}   outcome        
@@ -693,13 +715,16 @@ function buildRegionEntry(region, outcome, currentParty, rcvRegions, mapRegion, 
     description += isRcvRegion
         ? "<b>Vote Estimate (first round):</b><br>"
         : "<b>Vote Estimate:</b><br>";
-    for (const [name, { pct }] of outcome._sortedVoteEstimates) {
+    for (const [name, { pct }] of groupSmallCandidates(outcome._sortedVoteEstimates)) {
         if (pct.toFixed(2) !== "0.00")
             description += `${name}: ${pct.toFixed(2)}%<br>`;
     }
+
     if (outcome._rcvFinalEstimates) {
         description += "<b>Vote Estimate (final round):</b><br>";
-        const finalSorted = Object.entries(outcome._rcvFinalEstimates).sort((a, b) => b[1].pct - a[1].pct);
+        const finalSorted = groupSmallCandidates(
+            Object.entries(outcome._rcvFinalEstimates).sort((a, b) => b[1].pct - a[1].pct)
+        );
         for (const [name, { pct }] of finalSorted)
             description += `${name}: ${pct.toFixed(2)}%<br>`;
         if (outcome._rcvEliminationOrder.length)
