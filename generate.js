@@ -209,8 +209,8 @@ async function runRacePipeline(url, config) {
             if (!poll) {
                 const methodology = row.methodology || "";
                 const methodologyMultiplier =
-                    methodology.includes("Probability Panel") ? 1.4 :
-                    methodology.includes("Online")            ? 0.6 :
+                    methodology.includes("Probability Panel") ? 1.3 :
+                    methodology.includes("Online")            ? 0.7 :
                     1.0;
 
                 const pollster = row.pollster;
@@ -582,7 +582,7 @@ new Function("module", "exports", _defaultsSrc + `
 const { houseDefaults } = _defaultsModule.exports;
 
 const senateLink = "https://www.nytimes.com/newsgraphics/polls/senate.csv";
-const senateNotGenYet = ["US", "PA"];
+const senateNotGenYet = ["US"];
 const primaryWinnersByState = {
     NE: "dan osborn", ME: "x jackson", OH: "sherrod brown",
     SD: "x bengs", IA: "josh turek", GA: "mike collins",
@@ -776,7 +776,7 @@ async function buildSenate(offset, pviMap, marketWeight = 0.06) {
         notGenYet:            senateNotGenYet,
         fixKnownIndependents: (state, name) =>
             state === "NE" && name?.toLowerCase().includes("osborn") ? "IND" : 
-            state === "AK" && name?.toLowerCase().includes("j. sullivan") ? "DEM" :
+            state === "AK" && name?.toLowerCase().includes("j. sullivan") ? "IND" :
             state === "KS" && name?.toLowerCase().includes("hamilton") ? "DEM" :
             null,
         getRegionFromRow:     row => row.state,
@@ -957,7 +957,7 @@ async function getNationalOffset() {
             if (party === "DEM" || party === "WFP") dem += pct;
             else if (party === "REP")               rep += pct;
         }
-        const offset = (rep - dem) + 9;
+        const offset = (rep - dem) + 6.5;
         console.log(`  national house estimate: D ${dem.toFixed(2)} / R ${rep.toFixed(2)} -> offset ${offset.toFixed(2)}`);
         return offset;
     } catch (err) {
