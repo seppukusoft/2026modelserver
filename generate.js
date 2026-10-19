@@ -701,16 +701,22 @@ function buildRegionEntry(region, outcome, currentParty, rcvRegions, mapRegion, 
     const isDefault = outcome._isDefault ?? false;
 
     const nameOps = [];
+
     const hasRealMargin = !isDefault && outcome._sortedVoteEstimates.length > 1;
-    if (hasRealMargin) {
-        nameOps.push({ op: "append", value: ` – ${shortName(winner)} +${p.toFixed(1)}` });
+    const partyColor = colorMapping["likely" + winnerParty[0]];
+
+    let tag = "";
+    if (hasRealMargin) tag += ` – ${shortName(winner)} +${p.toFixed(1)}`;
+    if (isFlip)        tag += ` (${prevPartyDisplay.charAt(0)} → ${winnerParty.charAt(0)})`;
+
+    if (tag) {
+        if (isFlip && isDefault) nameOps.push({ op: "append", value: "<br>" });
+        nameOps.push({
+            op: "append",
+            value: partyColor ? `<span style="color:${partyColor}">${tag}</span>` : tag,
+        });
     }
 
-    if (isFlip) {
-        if (isDefault) nameOps.push({ op: "append", value: "<br>" });
-        nameOps.push({ op: "append", value: ` (${prevPartyDisplay.charAt(0)} → ${winnerParty.charAt(0)})` });
-        nameOps.push({ op: "color",  value: colorMapping["likely" + winnerParty[0]] });
-    }
     if (isDefault) {
         nameOps.push({ op: "append", value: "* (default values)" });
         nameOps.push({ op: "color",  value: "#FF0000" });
