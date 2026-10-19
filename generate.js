@@ -671,6 +671,11 @@ function groupSmallCandidates(entries, threshold = SMALL_CANDIDATE_THRESHOLD) {
     return kept;
 }
 
+function shortName(full) {
+    const parts = full.trim().split(/\s+/).filter(p => !/^(jr\.?|sr\.?|ii|iii|iv)$/i.test(p));
+    return parts[parts.length - 1];
+}
+
 /**
  * @param {string}   region      
  * @param {object}   outcome        
@@ -696,6 +701,11 @@ function buildRegionEntry(region, outcome, currentParty, rcvRegions, mapRegion, 
     const isDefault = outcome._isDefault ?? false;
 
     const nameOps = [];
+    const hasRealMargin = !isDefault && outcome._sortedVoteEstimates.length > 1;
+    if (hasRealMargin) {
+        nameOps.push({ op: "append", value: ` – ${shortName(winner)} +${p.toFixed(1)}` });
+    }
+
     if (isFlip) {
         if (isDefault) nameOps.push({ op: "append", value: "<br>" });
         nameOps.push({ op: "append", value: ` (${prevPartyDisplay.charAt(0)} → ${winnerParty.charAt(0)})` });
