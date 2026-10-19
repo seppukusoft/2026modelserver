@@ -582,7 +582,7 @@ new Function("module", "exports", _defaultsSrc + `
 const { houseDefaults } = _defaultsModule.exports;
 
 const senateLink = "https://www.nytimes.com/newsgraphics/polls/senate.csv";
-const senateNotGenYet = ["US"];
+const senateNotGenYet = ["US", "PA"];
 const primaryWinnersByState = {
     NE: "dan osborn", ME: "x jackson", OH: "sherrod brown",
     SD: "x bengs", IA: "josh turek", GA: "mike collins",
