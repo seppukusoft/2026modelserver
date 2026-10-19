@@ -609,7 +609,7 @@ const senateCurrentParty = { VA:"DEM", AL:"REP", NC:"REP", AK:"REP", MN:"DEM", N
 const Link_gov = "https://www.nytimes.com/newsgraphics/polls/governor.csv";
 const notGenYet_gov = ["US"];
 const primaryWinnersByState_gov = {
-    RI:"x foulkes", OR:"x drazan", FL:"x donalds", MA:"x minogue", MN:"x lindell",
+    RI:"x foulkes", OR:"x drazan", FL:"x donalds", MA:"x minogue", MN:"x demuth",
     NH:"x warmington", NV:"x lombardo", AK:"x kreiss-tomkins", AZ:"x biggs", MI:"x james", WI:"x crowley",
     CA: "x hilton", IA: "x lahn", GA:"x jackson", VT:"x janoo", CT:"x fazio", WY: "x barlow"
 };
