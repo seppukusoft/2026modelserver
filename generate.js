@@ -731,6 +731,18 @@ function buildRegionEntry(region, outcome, currentParty, rcvRegions, mapRegion, 
             description += `<i>Eliminated: ${outcome._rcvEliminationOrder.join(" → ")}</i><br>`;
     }
 
+    const candidateParties = {};
+    const addParties = entries => {
+        for (const [name, data] of entries) {
+            if (data?.party) candidateParties[name] = data.party;
+        }
+    };
+    addParties(outcome._sortedWinProbabilities);
+    addParties(groupSmallCandidates(outcome._sortedVoteEstimates));
+    if (outcome._rcvFinalEstimates) {
+        addParties(groupSmallCandidates(Object.entries(outcome._rcvFinalEstimates)));
+    }
+
     return {
         color: ratingKey,
         nameOps,
@@ -742,6 +754,7 @@ function buildRegionEntry(region, outcome, currentParty, rcvRegions, mapRegion, 
         prevParty: prevPartyDisplay ?? null,
         winner,
         winnerParty,
+        candidateParties, 
         winProbability: p,
         rating,
     };
