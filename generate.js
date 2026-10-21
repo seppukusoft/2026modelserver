@@ -42,6 +42,20 @@ function buildRatingsMap(ratingsText) {
     return map;
 }
 
+const EXCLUDED_POLLSTERS = [
+    "Praecones Analytica",
+    "Median Strategies",
+    "The Public Sentiment Institute",
+    "SoCal Strategies"
+].map(n => n.toLowerCase().replace(/[^a-z0-9]/g, ""));
+
+function isExcludedPollster(row) {
+    const names = [row.pollster, row.display_name]
+        .filter(Boolean)
+        .map(n => String(n).toLowerCase().replace(/[^a-z0-9]/g, ""));
+    return names.some(n => EXCLUDED_POLLSTERS.some(ex => n.includes(ex)));
+}
+
 function findPollsterRating(pollsterName, ratingsMap) {
     if (!pollsterName || !ratingsMap.size) return null;
     const norm = pollsterName.toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -463,6 +477,7 @@ async function runRacePipeline(url, config) {
     const rows = parsed.data.filter(r =>
         r && r.stage === "general" &&
         r.state &&
+        !isExcludedPollster(r) &&
         !notGenYetSet.has(getRegionFromRow(r)) &&
         new Date(r.created_at) >= cutoffDate &&
         (!extraRowFilter || extraRowFilter(r))
