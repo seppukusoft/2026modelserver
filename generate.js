@@ -229,6 +229,15 @@ async function runRacePipeline(url, config) {
                     row.partisan === "Democratic" || row.partisan === "Republican"
                         ? 0.85
                         : 1.0;
+
+                const weight = Math.sqrt(row.sample_size / 2 || 250) *
+                               Math.exp(-(now - endDate) / 86400000 / 30) *
+                               methodologyMultiplier * ppmMultiplier * sponsorMultiplier;
+                if (!Number.isFinite(weight)) {
+                    console.warn(`skipping poll with bad weight: ${region} ${pollster} end_date=${row.end_date} (${row.poll_id})`);
+                    continue;
+                }
+
                 poll = polls[key] = {
                     poll_id:      row.poll_id,
                     question_id:  row.question_id,
@@ -241,11 +250,7 @@ async function runRacePipeline(url, config) {
                     population:   row.population,
                     sponsorParty: normalizeParty(row.partisan),
                     pollsterBias: bias,
-                    weight: Math.sqrt(row.sample_size / 2 || 250) *
-                            Math.exp(-(now - endDate) / 86400000 / 30) *
-                            methodologyMultiplier *
-                            ppmMultiplier *
-                            sponsorMultiplier,
+                    weight,
                     responses: [],
                     _rows: [], 
                 };
@@ -424,7 +429,7 @@ async function runRacePipeline(url, config) {
             const voteEntries = Object.entries(marketAdjusted).sort((a, b) => b[1].pct - a[1].pct);
 
             outcomes[region] = {
-                _rcvFinalEstimates:      rcvEliminationOrder.length ? finalEstimates : null,
+                _rcvFinalEstimates:      rcvRegionsSet.has(region) ? finalEstimates : null,
                 _rcvEliminationOrder:    rcvEliminationOrder,
                 _sortedWinProbabilities: winProbEntries,
                 _sortedVoteEstimates:    voteEntries,
@@ -706,14 +711,15 @@ function buildRegionEntry(region, outcome, currentParty, rcvRegions, mapRegion, 
     const partyColor = colorMapping["likely" + winnerParty[0]];
 
     let tag = "";
-    if (hasRealMargin) tag += ` – ${shortName(winner)} +${p.toFixed(1)}`;
-    if (isFlip)        tag += ` (${prevPartyDisplay.charAt(0)} → ${winnerParty.charAt(0)})`;
+    if (hasRealMargin) tag += `${shortName(winner)} +${p.toFixed(1)}`;
+    if (isFlip)        tag += `${tag ? " " : ""}(${prevPartyDisplay.charAt(0)} → ${winnerParty.charAt(0)})`;
 
     if (tag) {
         if (isFlip && isDefault) nameOps.push({ op: "append", value: "<br>" });
+        const sep = hasRealMargin ? " – " : " ";   
         nameOps.push({
             op: "append",
-            value: partyColor ? `<span style="color:${partyColor}">${tag}</span>` : tag,
+            value: sep + (partyColor ? `<span style="color:${partyColor}">${tag}</span>` : tag),
         });
     }
 
@@ -737,14 +743,16 @@ function buildRegionEntry(region, outcome, currentParty, rcvRegions, mapRegion, 
     }
 
     if (outcome._rcvFinalEstimates) {
-        description += "<b>Vote Estimate (final round):</b><br>";
+        const noElimination = !outcome._rcvEliminationOrder.length;
+        let finalBlock = "<b>Vote Estimate (final round):</b><br>";
         const finalSorted = groupSmallCandidates(
             Object.entries(outcome._rcvFinalEstimates).sort((a, b) => b[1].pct - a[1].pct)
         );
         for (const [name, { pct }] of finalSorted)
-            description += `${name}: ${pct.toFixed(2)}%<br>`;
-        if (outcome._rcvEliminationOrder.length)
-            description += `<i>Eliminated: ${outcome._rcvEliminationOrder.join(" → ")}</i><br>`;
+            finalBlock += `${name}: ${pct.toFixed(2)}%<br>`;
+        if (!noElimination)
+            finalBlock += `<i>Eliminated: ${outcome._rcvEliminationOrder.join(" → ")}</i><br>`;
+        description += noElimination ? `<span style="display:none">${finalBlock}</span>` : finalBlock;
     }
 
     const candidateParties = {};
