@@ -91,6 +91,49 @@ function renormalizeEstimates(estimates) {
     return out;
 }
 
+function simulateRcv(start, shareBase) {
+    let current = Object.assign(Object.create(null), start);
+    const order = [];
+    while (Object.keys(current).length > 2) {
+        const sorted = Object.entries(current).sort((a, b) => a[1].pct - b[1].pct);
+        if (sorted[sorted.length - 1][1].pct > 50) break;
+        const [elimName, { pct: elimPct, party: elimParty }] = sorted[0];
+        const remaining = sorted.slice(1);
+
+        let same = 0, other = 0;
+        for (const [, d] of remaining) {
+            if (d.party === elimParty) same += d.pct;
+            else                       other += d.pct;
+        }
+        const partyShare = same > 0 ? shareBase : 0;
+
+        const next = Object.create(null);
+        for (const [name, d] of remaining) {
+            const bonus = d.party === elimParty
+                ? (same  > 0 ? d.pct / same  * elimPct * partyShare       : 0)
+                : (other > 0 ? d.pct / other * elimPct * (1 - partyShare) : 0);
+            next[name] = { pct: d.pct + bonus, party: d.party };
+        }
+        order.push(elimName);
+        current = renormalizeEstimates(next);
+    }
+    return { final: current, order };
+}
+
+function fitPartyShare(start, target, nEff, prior = 0.8, priorStrength = 20) {
+    const keysOf = o => Object.keys(o).sort().join("|");
+    if (keysOf(simulateRcv(start, prior).final) !== keysOf(target)) return prior;
+
+    let best = prior, bestErr = Infinity;
+    for (let s = 0.2; s <= 0.9501; s += 0.01) {
+        const { final } = simulateRcv(start, s);
+        let err = 0;
+        for (const c in target) err += (final[c].pct - target[c].pct) ** 2;
+        if (err < bestErr) { bestErr = err; best = s; }
+    }
+    return (nEff * best + priorStrength * prior) / (nEff + priorStrength);
+}
+
 function randomNormal(mean = 0, sigma = 1) {
     let u = 0, v = 0;
     while (!u) u = Math.random();
@@ -367,7 +410,7 @@ async function runRacePipeline(url, config) {
         return out;
     }
 
-    function computeOutcomes(estimates, pollsByRegion, marketPriors) {
+    function computeOutcomes(estimates, pollsByRegion, marketPriors, finalRoundByRegion = Object.create(null)) {
         const pollMap = Object.fromEntries(pollsByRegion.map(p => [p[regionKey], p.polls]));
         const outcomes = Object.create(null);
 
@@ -384,38 +427,11 @@ async function runRacePipeline(url, config) {
             let rcvEliminationOrder = [];
 
             if (rcvRegionsSet.has(region) && Object.keys(marketAdjusted).length > 2) {
-                let current = Object.assign(Object.create(null), marketAdjusted);
-                let currentSize = Object.keys(marketAdjusted).length;
-                while (currentSize > 2) {
-                    const sortedByVote = Object.entries(current).sort((a, b) => a[1].pct - b[1].pct);
-                    if (sortedByVote[sortedByVote.length - 1][1].pct > 50) break;
-                    const [elimName, elimData] = sortedByVote[0];
-                    const elimPct   = elimData.pct;
-                    const elimParty = elimData.party;
-                    const remaining = sortedByVote.slice(1);
-
-                    let sameWeight = 0, otherWeight = 0;
-                    for (const [, d] of remaining) {
-                        if (d.party === elimParty) sameWeight  += d.pct;
-                        else                       otherWeight += d.pct;
-                    }
-                    const partyShare = sameWeight > 0 ? 0.8 : 0;
-                    const otherShare = 1 - partyShare;
-
-                    const next = Object.create(null);
-                    for (const [name, data] of remaining) {
-                        let bonus = 0;
-                        if (data.party === elimParty && sameWeight > 0)
-                            bonus = (data.pct / sameWeight) * elimPct * partyShare;
-                        else if (data.party !== elimParty && otherWeight > 0)
-                            bonus = (data.pct / otherWeight) * elimPct * otherShare;
-                        next[name] = { pct: data.pct + bonus, party: data.party };
-                    }
-                    rcvEliminationOrder.push(elimName);
-                    current = renormalizeEstimates(next);
-                    currentSize--;
-                }
-                finalEstimates = current;
+                const fr    = finalRoundByRegion[region];
+                const share = fr ? fitPartyShare(marketAdjusted, fr.estimates, fr.nEff) : 0.8;
+                const sim   = simulateRcv(marketAdjusted, share);
+                finalEstimates      = sim.final;
+                rcvEliminationOrder = sim.order;
             }
 
             if (Object.keys(finalEstimates).length === 0) continue;
@@ -482,7 +498,11 @@ async function runRacePipeline(url, config) {
         new Date(r.created_at) >= cutoffDate &&
         (!extraRowFilter || extraRowFilter(r))
     );
-    const polls      = groupByPollId(rows, ratingsMap);
+    const allPolls   = groupByPollId(rows, ratingsMap);
+    const isFinalRoundPoll = p => rcvRegionsSet.has(p[regionKey]) &&
+        p._rows.some(r => String(r.ranked_choice_final).toUpperCase() === "TRUE");
+    const polls           = allPolls.filter(p => !isFinalRoundPoll(p));
+    const finalRoundPolls = allPolls.filter(isFinalRoundPoll);
     const thresholded = applyCandidateThreshold(polls);
     const filtered   = filterPolls(thresholded);
     for (const poll of filtered) {
@@ -497,9 +517,26 @@ async function runRacePipeline(url, config) {
     }
     const byRegion   = groupPollsByRegion(filtered);
     const estimates  = computeEstimates(byRegion);
+
+    const usableFinalPolls = finalRoundPolls.filter(poll => {
+        if (poll.responses.length < 2) return false;
+        const required = primaryWinners[poll[regionKey]];
+        return !required || poll.responses.some(r => getLastName(r.candidate) === getLastName(required));
+    });
+    const finalRoundByRegion = Object.create(null);
+    for (const entry of groupPollsByRegion(usableFinalPolls)) {
+        const region = entry[regionKey];
+        const est = computeEstimates([entry])[region];
+        if (!est || Object.keys(est).length < 2) continue;
+        finalRoundByRegion[region] = {
+            estimates: est,
+            nEff: entry.polls.reduce((s, p) => s + p.weight, 0),
+        };
+    }
+
     return {
-        outcomes: { ...defaults, ...computeOutcomes(estimates, byRegion, marketPrior) },
-        filteredPolls: filtered, 
+        outcomes: { ...defaults, ...computeOutcomes(estimates, byRegion, marketPrior, finalRoundByRegion) },
+        filteredPolls: [...filtered, ...usableFinalPolls],
     };
 }
 
