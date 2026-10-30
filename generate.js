@@ -547,8 +547,6 @@ async function runRacePipeline(url, config) {
         };
     }
 
-    // Races with no usable polls: start from an even D/R split and let computeOutcomes apply
-    // the PVI + national offset and the market prior (nEff = 0, so sigma = 5).
     const fundamentalsEstimates = Object.create(null);
     if (fundamentalsFallback) {
         for (const region of Object.keys(pviMap)) {
@@ -560,8 +558,12 @@ async function runRacePipeline(url, config) {
         }
     }
 
+    const computed = computeOutcomes({ ...estimates, ...fundamentalsEstimates }, byRegion, marketPrior, finalRoundByRegion);
+    for (const region in fundamentalsEstimates) {
+        if (computed[region]) computed[region]._fundamentalsOnly = true;
+    }
     return {
-        outcomes: { ...defaults, ...computeOutcomes({ ...estimates, ...fundamentalsEstimates }, byRegion, marketPrior, finalRoundByRegion) },
+        outcomes: { ...defaults, ...computed },
         filteredPolls: [...filtered, ...usableFinalPolls],
     };
 }
@@ -721,6 +723,23 @@ function houseMapDistrictCode(district) {
     if (district.endsWith("01") && _atLargeStates.has(district.slice(0, 2)))
         return district.slice(0, 2) + "00";
     return district;
+}
+
+function canonicalizeHouseOutcomes(outcomes) {
+    const rank = o => o._fundamentalsOnly ? 0 : o._isDefault ? 1 : 2;
+    const merged = Object.create(null);
+    const dupes = [], unknown = [];
+    for (const district in outcomes) {
+        const mapDistrict = houseMapDistrictCode(district);
+        if (!(mapDistrict in houseCurrentParty)) { unknown.push(district); continue; }
+        const prev = merged[mapDistrict];
+        if (prev) {
+            dupes.push(`${prev.district}+${district}`);
+            if (rank(outcomes[district]) <= rank(prev.outcome)) continue;
+        }
+        merged[mapDistrict] = { district, outcome: outcomes[district] };
+    }
+    return { merged, dupes, unknown };
 }
 
 function marginFromVoteEstimates(voteEntries) {
@@ -1022,10 +1041,15 @@ async function buildHouse(offset, pviMap = houseDistrictPVI, marketWeight = 0.06
     const losses = { DEM: 0, REP: 0, IND: 0 };
     const regions = {};
 
-    for (const district in outcomes) {
-        const mapDistrict = houseMapDistrictCode(district);
+    const { merged, dupes, unknown } = canonicalizeHouseOutcomes(outcomes);
+    if (dupes.length)   console.warn(`  house: ${dupes.length} outcome keys collided on the same district (kept one each): ${dupes.join(", ")}`);
+    if (unknown.length) console.warn(`  house: ignored ${unknown.length} outcome keys that aren't real districts: ${unknown.join(", ")}`);
+    const missing = Object.keys(houseCurrentParty).filter(d => !merged[d]);
+    if (missing.length) console.warn(`  house: no outcome for ${missing.length} districts: ${missing.join(", ")}`);
+
+    for (const [mapDistrict, { outcome }] of Object.entries(merged)) {
         const entry = buildRegionEntry(
-            mapDistrict, outcomes[district],
+            mapDistrict, outcome,
             houseCurrentParty,        
             ["AK00", "ME01", "ME02"],
             mapDistrict,         
@@ -1133,7 +1157,6 @@ async function main() {
     console.log("generate.js: starting pipeline runs...");
     const date = new Date().toISOString().split("T")[0]; 
 
-    // Run old model pipeline
     const [senate, gov, house] = await Promise.all([
         buildSenate(2.75, cookPVI),
         buildGov(2.75, cookPVI_gov),
@@ -1187,9 +1210,6 @@ async function main() {
     await uploadToGitHub(JSON.stringify(gov.filteredPolls.map(cleanPoll)), `polls/gov_${date}.json`);
     await uploadToGitHub(JSON.stringify(house.filteredPolls.map(cleanPoll)), `polls/house_${date}.json`);
 
-    // ------------------------------------------------------------------------------------------------------
-    
-    // Run new model pipeline
     const nationalOffset = await getNationalOffset();
     const [senate_v2, gov_v2, house_v2] = await Promise.all([
         buildSenate(nationalOffset, cookPVI_adj, 0.01),
