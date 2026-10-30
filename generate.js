@@ -1214,7 +1214,7 @@ async function main() {
     const [senate_v2, gov_v2, house_v2] = await Promise.all([
         buildSenate(nationalOffset, cookPVI_adj, 0.01),
         buildGov(nationalOffset, cookPVI_gov_adj, 0.01),
-        buildHouse(nationalOffset - 1.75, houseDistrictPVI_adj, 0.01),
+        buildHouse(nationalOffset, houseDistrictPVI_adj, 0.01),
     ]);
 
     const { filteredPolls: _sv2, ...senateFinal_v2 } = senate_v2;
