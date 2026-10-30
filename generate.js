@@ -46,7 +46,9 @@ const EXCLUDED_POLLSTERS = [
     "Praecones Analytica",
     "Median Strategies",
     "The Public Sentiment Institute",
-    "SoCal Strategies"
+    "SoCal Strategies",
+    "Wedgewood Polls",
+    "The Washington Post/George Mason University Schar School of Policy and Government"
 ].map(n => n.toLowerCase().replace(/[^a-z0-9]/g, ""));
 
 function isExcludedPollster(row) {
