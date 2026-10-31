@@ -675,7 +675,7 @@ const primaryWinnersByState = {
     SD: "x bengs", IA: "josh turek", GA: "mike collins",
     NH: "john sununu", MN: "x flanagan", KS: "x hamilton",
     MA: "x markey", FL: "x nixon", MI: "x el-sayed",
-    TX: "x paxton", KY: "x barr", ID: "x achilles"
+    TX: "x paxton", KY: "x barr", ID: "x achilles", OK:"x thomas"
 };
 const cookPVI = {
     AL:15, AK:5, AZ:2, AR:15, CA:-12, CO:-6, CT:-8, DE:-8, FL:6, GA:2, HI:-13, ID:18,
@@ -922,7 +922,7 @@ async function buildSenate(offset, pviMap, marketWeight = 0.06) {
         currentParty:         senateCurrentParty,
         ratingsUrl:           "./data-GiFps.csv",
         rcvRegions:           ["AK", "ME"],
-        singlePollRegions:    [],
+        singlePollRegions:    ["OK", "TN", "WV","WY","OR","CO","NJ","DE"],
         fundamentalsFallback: true,
         noElectionRegions:    SENATE_NO_ELECTION,
         excludeQuestionIds: ["4e57a172-4867-4b0c-a8ff-534bcf7ad2b3", "12e20038-9490-49cb-987c-808f22073a71", "8641969d-bfcf-4367-93b8-d7ae2d45694b", "d9dc3470-4920-48e7-8a1a-9b679108811a", "d0deaf86-1535-4335-ada2-900774ec77ff"],
@@ -978,7 +978,7 @@ async function buildGov(offset, pviMap = cookPVI_gov, marketWeight = 0.06) {
         ratingsUrl:           "./data-GiFps.csv",
         currentParty:         govCurrentParty,
         rcvRegions:           ["AK"],
-        singlePollRegions:    [],
+        singlePollRegions:    ["WY","OK","CO"],
         fundamentalsFallback: true,
         noElectionRegions:    GOV_NO_ELECTION,
         excludeQuestionIds: ["d9dc3470-4920-48e7-8a1a-9b679108811a", "d0deaf86-1535-4335-ada2-900774ec77ff"],
